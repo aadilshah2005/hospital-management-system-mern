@@ -1,11 +1,24 @@
 import User from "../models/user.model.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import validator from "validator";
 
 export const registerUser = async (req, res) => {
     try {
         const {name, email, password} = req.body;
+
+          if (!validator.isEmail(email)) {
+            return res.status(400).json({
+                message: "Please enter a valid email",
+            });
+            }
         
+            if(password.length < 6){
+                return res.status(400).json({
+                    message: "Password should be at least 6 characters",
+                });
+            }
+
         if(!name || !email || !password){
             return res.status(400).json({
                 success:false,
@@ -15,7 +28,7 @@ export const registerUser = async (req, res) => {
 
         const user = await User.findOne({email});
         if (user) {
-            return res.status({
+            return res.status(400).json({
                 success:false,
                 message: "User already exists"
             })
@@ -53,7 +66,7 @@ export const registerUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
     try {
-        const {email, password} = req.body;
+        const {email, password, rememberMe, role} = req.body;
         if (!email || !password) {
             return res.status(400).json({
                 success:false,
@@ -69,6 +82,13 @@ export const loginUser = async (req, res) => {
             })
         }
 
+        if(user.role !== role){
+        return res.status(403).json({
+            success: false,
+            message: "Invalid role selected"
+        })
+    }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch){
             return res.status(400).json({
@@ -77,16 +97,23 @@ export const loginUser = async (req, res) => {
             })
         }
 
+        const tokenExpiry = rememberMe ? "7d" : "1d";
+
         const token = jwt.sign(
             {"userId": user._id, "userRole": user.role},
             process.env.JWT_SECRET,
-            {expiresIn: "7d"}
+            {expiresIn: tokenExpiry}
         )
+
+        const cookieMaxAge = rememberMe
+        ? 7 * 24 * 60 * 60 * 1000
+        : 24 * 60 * 60 * 1000;
 
         res.cookie("UserToken", token, {
             httpOnly: true,
             secure: false, // production me true karna hai mujhe
-            maxAge: 7 * 24 * 60 * 60 * 1000, 
+            sameSite: "lax",
+            maxAge: cookieMaxAge, 
         });
 
         const userData = user.toObject();
@@ -110,9 +137,24 @@ export const loginUser = async (req, res) => {
     }
 }
 
-export const getProfile = (req, res) => {
+export const getProfile = async (req, res) => {
     try {
-        res.send("Get Profile")
+        const user = await User.findById(req.user.userId);
+        if(!user){
+            return res.status(404).json({
+                success:false,
+                message: "user not found"
+            })
+        }
+
+        const userData = user.toObject();
+        delete userData.password
+        res.status(200).json({
+            success:true,
+            message:"User get successfully",
+            userData
+        })
+
     } catch (error) {
         console.log(error.message);
         res.status({
@@ -122,3 +164,24 @@ export const getProfile = (req, res) => {
         })
     }
 }
+
+
+export const logOutUser = (req, res) => {
+  try {
+    res.clearCookie("UserToken");
+
+    res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+    
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Logout error",
+      error: error.message,
+    });
+  }
+};
