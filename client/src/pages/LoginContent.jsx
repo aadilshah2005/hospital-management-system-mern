@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { GiHospitalCross } from "react-icons/gi";
+import { useNavigate } from "react-router-dom";
 
 const LoginContent = () => {
   const [role, setRole] = useState("patient");
@@ -11,6 +12,7 @@ const LoginContent = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [userName, setUserName] = useState("");
+  const navigate = useNavigate();
 
   console.log(userName);
 
@@ -36,11 +38,18 @@ const LoginContent = () => {
       console.log("firstLetter", firstLetter);
 
       localStorage.setItem("firstLetter", firstLetter);
+      localStorage.setItem("role", user.role);
 
       toast.success(`Hello ${user.name}, login successful!`);
 
       setTimeout(() => {
-        window.location.reload();
+        if (user.role === "admin") {
+          navigate("/admin/dashboard");
+        } else if (user.role === "doctor") {
+          navigate("/doctor/dashboard");
+        } else {
+          navigate("/");
+        }
       }, 1500);
 
       setEmail("");

@@ -1,56 +1,36 @@
-import axios from "axios";
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { handleLogout } from "../utils/logout.js";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
   const menuItems = [
-    { name: "dashboard", path: "/dashboard" },
     { name: "doctors", path: "/doctors" },
-    { name: "patients", path: "/patients" },
+
     { name: "appointments", path: "/appointments" },
-    { name: "records", path: "/records" },
+
+    { name: "medical history", path: "/medical-history" },
+
+    { name: "prescriptions", path: "/prescriptions" },
+
+    { name: "lab reports", path: "/lab-reports" },
+
     { name: "billing", path: "/billing" },
-    { name: "pharmacy", path: "/pharmacy" },
-    { name: "lab", path: "/lab" },
-    { name: "beds", path: "/beds" },
+
     { name: "notifications", path: "/notifications" },
-    { name: "roles", path: "/roles" },
   ];
 
   const firstLetter = localStorage.getItem("firstLetter");
   console.log("get firstLetter in navbar", firstLetter);
+  const role = localStorage.getItem("role");
+  console.log("role:", role);
 
-  const handleLogout = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:5000/api/auth/logout",
-        {
-          withCredentials: true,
-        },
-      );
-      localStorage.removeItem("firstLetter");
-      toast.success(response.data.message);
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-      navigate("/");
-    } catch (error) {
-      console.log(error);
-
-      toast.error("Logout failed");
-    }
-  };
-
-  
   return (
     <nav
       className="fixed top-0 left-0 right-0 z-50 
-      bg-[rgba(10,15,30,0.92)] backdrop-blur-md 
+      bg-gray-900 backdrop-blur-md 
       border-b border-[#1f2a3a] px-3 sm:px-4 lg:px-6 py-2"
     >
       <div className="flex items-center justify-between">
@@ -94,7 +74,7 @@ const Navbar = () => {
             </NavLink>
           ))}
 
-          {firstLetter && (
+          {firstLetter && role === "patient" && (
             <div className="relative group inline-block">
               <div className="w-6 h-6 rounded-full bg-teal-500 text-white flex items-center justify-center cursor-pointer">
                 {firstLetter}
@@ -110,7 +90,9 @@ const Navbar = () => {
                   </Link>
 
                   <button
-                    onClick={handleLogout}
+                    onClick={() => {
+                      handleLogout(navigate);
+                    }}
                     className="block px-4 py-2 hover:bg-gray-100 text-red-500"
                   >
                     Logout
