@@ -15,7 +15,7 @@ export const handleLogout = async (navigate) => {
       setTimeout(() => {
         window.location.reload();
       }, 2000);
-      navigate("/");
+      navigate("/login");
     } catch (error) {
       console.log(error);
 

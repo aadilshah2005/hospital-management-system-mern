@@ -10,6 +10,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import DoctorLayout from "./components/layouts/DoctorLayout";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Home from "./pages/Home";
 
 
 function App() {
@@ -19,8 +20,10 @@ function App() {
 
       <main className="w-full min-h-screen">
         <Routes>
-          <Route path="/" element={<LoginPage />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/profile" element={<MyProfile />} />
+          
          
 
           <Route

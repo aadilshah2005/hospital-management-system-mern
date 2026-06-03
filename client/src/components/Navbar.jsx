@@ -7,6 +7,8 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const menuItems = [
+    { name: "home", path: "/" },
+
     { name: "doctors", path: "/doctors" },
 
     { name: "appointments", path: "/appointments" },
@@ -41,38 +43,57 @@ const Navbar = () => {
         >
           🏥 MediCore HMS
         </span>
-
         <div className="hidden lg:flex gap-2 items-center">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `px-3 py-1 text-[11px] font-semibold rounded-md border transition whitespace-nowrap
-              ${
-                isActive
-                  ? "bg-teal-500/10 text-teal-400 border-teal-400/30"
-                  : "text-gray-400 border-[#1f2a3a] hover:text-teal-400 hover:border-teal-400/30"
-              }`
-            }
-          >
-            Login
-          </NavLink>
+          {!firstLetter && (
+            <>
+              <NavLink
+                to="/"
+                className="px-3 py-1 text-[11px] font-semibold rounded-md border text-gray-400 border-[#1f2a3a]"
+              >
+                Home
+              </NavLink>
 
-          {menuItems.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.path}
-              className={({ isActive }) =>
-                `px-3 py-1 text-[11px] font-semibold rounded-md border transition capitalize whitespace-nowrap
+              <NavLink
+                to="/doctors"
+                className="px-3 py-1 text-[11px] font-semibold rounded-md border text-gray-400 border-[#1f2a3a]"
+              >
+                Doctors
+              </NavLink>
+
+              <NavLink
+                to="/login"
+                className={({ isActive }) =>
+                  `px-3 py-1 text-[11px] font-semibold rounded-md border transition whitespace-nowrap
+          ${
+            isActive
+              ? "bg-teal-500/10 text-teal-400 border-teal-400/30"
+              : "text-gray-400 border-[#1f2a3a] hover:text-teal-400 hover:border-teal-400/30"
+          }`
+                }
+              >
+                Login
+              </NavLink>
+            </>
+          )}
+
+          {firstLetter &&
+            role === "patient" &&
+            menuItems.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.path}
+                className={({ isActive }) =>
+                  `px-3 py-1 text-[11px] font-semibold rounded-md border transition capitalize whitespace-nowrap
                 ${
                   isActive
                     ? "bg-teal-500/10 text-teal-400 border-teal-400/30"
                     : "text-gray-400 border-[#1f2a3a] hover:text-teal-400 hover:border-teal-400/30"
                 }`
-              }
-            >
-              {item.name}
-            </NavLink>
-          ))}
+                }
+              >
+                {item.name}
+              </NavLink>
+            ))}
 
           {firstLetter && role === "patient" && (
             <div className="relative group inline-block">
